@@ -1,5 +1,4 @@
-from sys import flags
-from config import types, Dispatcher, StatesGroup, State
+from config import types, Dispatcher, StatesGroup, State, FSMContext
 from dtbase import *
 from keyboards import *
 
@@ -47,14 +46,18 @@ async def enter_right_answer(message: types.Message):
 
 #handler (wrong answ)
 async def enter_wrong_answer(message: types.Message):
-    global c
-    if c < 3:
+    global c, UserID 
+    UserID = message.from_user.id
+    if c <= 3:
         await add_wrong_answer(str(message.text), c, ID)
+        if c == 3:
+            await message.answer("Вы ввели максимальное количетво ответов",reply_markup=DoneQuestButt)
+        else:
+            await message.answer('Нажмите "готово", если вы завершили создание вопроса, нажмите "добавить", чтобы добавить'
+                                ' дополнительный неверный варинат ответа',reply_markup=InlnQuestionButtons)
         c+=1
-        await message.answer('Нажмите "готово", если вы завершили создание вопроса, нажмите "добавить", чтобы добавить'
-                             ' дополнительный неверный варинат ответа',reply_markup=InlnQuestionButtons)
     else:
-        await message.answer("Вы ввели максимально количетво ответов",reply_markup=DoneQuestButt)
+        await message.answer("Вы ввели максимальное количетво ответов",reply_markup=DoneQuestButt)
 
 
 async def question_is_done(callback: types.CallbackQuery):
@@ -68,8 +71,11 @@ async def next_wrong_answer(callback: types.CallbackQuery):
     await callback.message.answer("Введите неверный вариант ответа")
 
 
-async def quiz_is_done(callback: types.CallbackQuery):
-    await callback.message.answer("Викторина создана!")
+async def quiz_is_done(callback: types.CallbackQuery, state: FSMContext):
+    global UserID
+    await callback.message.answer("Викторина создана!", reply_markup=Start_Markup)
+    await state.finish()
+    await Enter_User_QuizCreated(UserID)
 
 
 def reg_QuizCreation_handlers(dp: Dispatcher):
