@@ -54,7 +54,7 @@ async def enter_wrong_answer(message: types.Message):
             await message.answer("Вы ввели максимальное количетво ответов",reply_markup=DoneQuestButt)
         else:
             await message.answer('Нажмите "готово", если вы завершили создание вопроса, нажмите "добавить", чтобы добавить'
-                                ' дополнительный неверный варинат ответа',reply_markup=InlnQuestionButtons)
+                                ' дополнительный неверный вариант ответа',reply_markup=InlnQuestionButtons)
         c+=1
     else:
         await message.answer("Вы ввели максимальное количетво ответов",reply_markup=DoneQuestButt)
